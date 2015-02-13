@@ -1,0 +1,295 @@
+<html>
+    <head>
+        <style>
+            html{
+                background-color: #8DC7B8;
+            }
+            span{
+                display: block;
+            }
+
+            h1 {
+                color: white;
+                font-family: Euphemia;
+                font-size: 3em;
+                background-color: #1DA099;
+                margin: auto;
+            }
+            #design {
+                background-color: skyblue;
+            }
+
+            #layout {
+                display: block;
+                margin: 10px;
+                text-align: center;
+            }
+
+            h3 {
+                font-size: 1em;
+            }
+
+            .column {
+                padding: 0;
+                margin: 0px;
+                height: 400px;
+                width: 66px;
+                border-left: 2px solid;
+                border-right: 2px solid;
+                border-bottom: 2px solid;
+                border-color: #1DA099;
+                border-radius: 5px;
+            }
+            
+            .gamediv {
+                text-align: center;
+                margin-top: 50px;
+                padding: 0px;
+                display: inline-block;
+            }
+
+            .columndiv {
+                margin: -3px;
+                display: inline-block;
+            }
+
+            .restart {
+                padding: 8px;
+                background-color: #1DA099;
+                border-color: #1DA099;
+                color: white;
+                width: 120px;
+                display: block;
+                margin: 15px;
+                display: inline;
+                border-radius: 5px;
+                font-family: Euphemia;
+                font-weight: bold;
+                font-size: 15px;
+            }
+
+            .displaydiv {
+                height: 160px;
+                width: 100px;
+                display: inline;
+            }
+
+            .display {
+                margin: 3px 0 3px 0;
+                font-family: Euphemia;
+                font-weight: bold;
+                font-size: 25px;
+                color: #1DA099;
+            }
+
+            .win {
+                display: none;
+            }
+
+            .displaydiv > div {
+                margin: auto;
+                width: 52px;
+                height: 52px;
+            }
+
+            .displaydiv .token {
+                height:40px;
+                width: 40px;
+                margin: auto;
+                border-width: 6px;
+            }
+
+            .player1 {
+                background-color: #FFB591;
+                border: 3px solid #FFB595;
+            }
+
+            .player2 {
+                background-color: #FF6666;
+                border: 3px solid #FF6670;
+            }
+
+            .token {
+                height: 59px;
+                width: 59px;
+                border-radius: 100%;
+                margin: auto;
+            }
+            .mouseovertoken{
+                height: 59px;
+                width: 59px;
+                border-radius: 100%;
+                margin: auto;
+                opacity: 0.5;
+            }
+            .gamediv .token {
+                position: absolute;
+            }
+        </style>
+        
+        <script src="jquery-1.11.2.js"></script>
+        <script src="jquery-ui.min.js"></script>
+        
+        <script>
+            var columns = [[], [], [], [], [], [], []];
+            var tokens = 0;
+            var playing = true;
+            var started = false;
+            var maxHeight = 6;
+
+            var dropLength = function(index) {
+                return (maxHeight + 0.15 - columns[index].length) * 65;
+            };
+
+            var locate = function(type, x, y) {
+                if((x < 0) || (x > 6)) return false;
+                if((y < 0) || (y > maxHeight - 1)) return false;
+                if(columns[x].length < (y + 1)) return false;
+                return (columns[x][y] === type);
+            };
+
+            var winner = function(type, x, y) {
+                if(!locate(type, x, y)) return false;
+                var direct = [[1,0], [1,1], [0,1], [1,-1]];
+                var matches = 0;
+                for(var i = 0; i < 4; i++) {
+                    for(var j = 1; ; j++)
+                        if(locate(type, x+j*direct[i][0], y+j*direct[i][1]))
+                            matches++;
+                        else break;
+                    for(var j = 1; ; j++)
+                        if(locate(type, x-j*direct[i][0], y-j*direct[i][1]))
+                            matches++;
+                        else break;
+                    if(matches >= 3) return true;
+                    matches = 0;
+                }
+                return false;
+            };
+
+            var checkForDraw = function() {
+                for(var i = 0; i < columns.length; i++)
+                    if(columns[i].length < maxHeight)
+                        return;
+                $(".displaydiv h2").text("Draw!");
+                $(".win").show();
+                playing = false;
+            };
+
+            var updateGame = function(index) {
+                if(!playing) return false;
+                var colLength = columns[index].length;
+                if(colLength >= maxHeight) return false;
+                tokens++;
+                var type = tokens % 2;
+                columns[index].push(type);
+                if(winner(type, index, colLength)) {
+                    $(".win").show();
+                    playing = false;
+                }
+                if(playing && columns[index].length === maxHeight)
+                    checkForDraw();
+                return true;
+            };
+
+            var switchPlayer = function() {
+                if(started) return;
+                tokens++;
+                updateDisplayToken();
+            };
+
+            var updateDisplayToken = function() {
+                $(".displaydiv .token").addClass("todelete");
+                if($("html").hasClass("ie"))
+                    $(".todelete").remove();
+                else
+                    $(".todelete").effect("explode", function()
+                        {$(".todelete").remove();});
+                var p = tokens%2 ? "player1" : "player2";
+                var newToken = "<div style=\"display:none\" class=\"token "
+                    + p + "\"></div>";
+                $(".displaydiv > div").prepend($(newToken));
+                if(!$("html").hasClass("ie"))
+                    $(".displaydiv .token")
+                        .css("position", "absolute");
+                $(".displaydiv .token").show("slide");
+                $(".displaydiv .token").click(switchPlayer);
+                var newToken = "<span class=\"mouseovertoken " + p + "\"></span>";
+                $(".column span").replaceWith(newToken);
+                
+            };
+
+            $(document).ready(function() {
+                if(!$("html").hasClass("ie"))
+                    $(".displaydiv .token")
+                        .css("position", "absolute");
+                $(".columndiv .column").click(function() {
+                    var index = $(this).parent().index();
+                    console.log($(this).parent());
+                    if(!updateGame(index)) return;
+                    started = true;
+                    var p = (tokens%2) ? "player2" : "player1";
+                    var newToken = "<div class=\"token " + p + "\"></div>";
+                    $(this).prepend(newToken);
+                    var t = $(this)
+                        .children(".token:first-child").position().top;
+                    $(this)
+                        .children(".token:first-child").css("top", t);
+                    if($("html").hasClass("ie"))
+                        $(this).children(".token:first-child")
+                            .css("top", 100);
+                    $(this).children(".token:first-child")
+                        .animate({top:"+="+dropLength(index)+"px"}, 500);
+                    if(!playing) return;
+                    updateDisplayToken();
+                });
+                $(".restart").click(function() {
+                    $(".gamediv .token").fadeOut(function()
+                        {$(this).remove();});
+                    for(var i = 0; i < columns.length; i++) columns[i] = [];
+                    $(".win").hide();
+                    $(".displaydiv h2").text("Winner!");
+                    playing = true;
+                    started = false;
+                    updateDisplayToken();
+                });
+                
+                $(".displaydiv .token").click(switchPlayer);
+                
+                $(".column").mouseenter(function() {
+                    var index = $(this).parent().index();
+                    var p = (tokens-1)%2 ? "player2" : "player1";
+                    var newToken = "<span class=\"mouseovertoken " + p + "\"></span>";
+                    if(playing && columns[index].length < 6)
+                        $(this).append(newToken);
+                });
+                
+                $(".column").mouseleave(function() {
+                    $(".column span").remove();
+                });
+            });
+        </script>
+    </head>
+    
+    <body id="layout">
+        <h1>Connect 4</h1>
+        <div class="gamediv">
+            <div class="columndiv"><div class="column"></div></div>
+            <div class="columndiv"><div class="column"></div></div>
+            <div class="columndiv"><div class="column"></div></div>
+            <div class="columndiv"><div class="column"></div></div>
+            <div class="columndiv"><div class="column"></div></div>
+            <div class="columndiv"><div class="column"></div></div>
+            <div class="columndiv"><div class="column"></div></div>
+        </div>
+        
+        <div class="displaydiv">
+            <h4 class="display">Player:</h4>
+            <div><div class="token player2"></div></div>
+            <h2 class="display win">Winner!</h2>
+            <h3 class="display win">Game Over</h3>
+            <button class="restart">Restart Game</button>
+        </div>
+    </body>
+    
+</html>
