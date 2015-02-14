@@ -7,7 +7,11 @@
             span{
                 display: block;
             }
-
+            hr{
+                margin-top: 65px;
+                border: 0; 
+                border-top: 2px solid #1DA099;
+            }
             h1 {
                 color: white;
                 font-family: Euphemia;
@@ -34,6 +38,7 @@
                 margin: 0px;
                 height: 400px;
                 width: 66px;
+                border-top: 2px solid;
                 border-left: 2px solid;
                 border-right: 2px solid;
                 border-bottom: 2px solid;
@@ -110,14 +115,14 @@
             }
 
             .token {
-                height: 59px;
-                width: 59px;
+                height: 60px;
+                width: 60px;
                 border-radius: 100%;
                 margin: auto;
             }
             .mouseovertoken{
-                height: 59px;
-                width: 59px;
+                height: 61px;
+                width: 61px;
                 border-radius: 100%;
                 margin: auto;
                 opacity: 0.5;
@@ -135,7 +140,8 @@
             var maxHeight = 6;
 
             var dropLength = function(index) {
-                return (maxHeight + 0.15 - columns[index].length) * 65;
+                var len = columns[index].length-1;
+                return (maxHeight + (0.15-(len*0.03)) - columns[index].length) * 65;
             };
 
             var locate = function(type, x, y) {
@@ -258,7 +264,7 @@
                     var p = (tokens-1)%2 ? "player2" : "player1";
                     var newToken = "<span class=\"mouseovertoken " + p + "\"></span>";
                     if(playing && columns[index].length < 6)
-                        $(this).append(newToken);
+                        $(this).prepend(newToken);
                 });
                 
                 $(".column").mouseleave(function() {
@@ -271,13 +277,13 @@
     <body id="layout">
         <h1>Connect 4</h1>
         <div class="gamediv">
-            <div class="columndiv"><div class="column"></div></div>
-            <div class="columndiv"><div class="column"></div></div>
-            <div class="columndiv"><div class="column"></div></div>
-            <div class="columndiv"><div class="column"></div></div>
-            <div class="columndiv"><div class="column"></div></div>
-            <div class="columndiv"><div class="column"></div></div>
-            <div class="columndiv"><div class="column"></div></div>
+            <div class="columndiv"><div class="column"><hr><hr><hr><hr><hr></div></div>
+            <div class="columndiv"><div class="column"><hr><hr><hr><hr><hr></div></div>
+            <div class="columndiv"><div class="column"><hr><hr><hr><hr><hr></div></div>
+            <div class="columndiv"><div class="column"><hr><hr><hr><hr><hr></div></div>
+            <div class="columndiv"><div class="column"><hr><hr><hr><hr><hr></div></div>
+            <div class="columndiv"><div class="column"><hr><hr><hr><hr><hr></div></div>
+            <div class="columndiv"><div class="column"><hr><hr><hr><hr><hr></div></div>
         </div>
         
         <div class="displaydiv">
